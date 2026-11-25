@@ -95,6 +95,13 @@ make run-headless
 make pack-dry
 ```
 
+## npm releases
+
+The GitHub Actions release workflow publishes on version tags. For the one-time
+setup and npm Trusted Publisher configuration, see
+[docs/NPM_RELEASE.md](docs/NPM_RELEASE.md). Releases after the initial package
+creation use GitHub Actions OIDC and do not need an npm token secret.
+
 The implementation uses only Node.js built-ins at runtime. Checks use an
 injectable probe interface, so tests run on non-Linux hosts without touching
 the host's actual services, network, or devices. Diagnostic output can include

@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Dense, btop-inspired Linux diagnostics TUI",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arien-dev/sysdoctor.git"
+  },
   "type": "module",
   "bin": {
     "sysdoctor": "./dist/cli.js",
