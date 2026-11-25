@@ -2,7 +2,7 @@
 
 `sysdoctor` is an open-source Linux diagnostic TUI build by arien-dev for the question “Why is X
 not working right now?”. It combines subsystem health, likely causes, safe
-next steps, and the command evidence behind each finding.
+next steps, and the command evidence behind each finding. 
 
 ```text
 +-- sysdoctor 1.0.0 - workstation - Linux 6.x - LIVE 2s - WARN -----+
