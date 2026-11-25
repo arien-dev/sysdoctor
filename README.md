@@ -1,6 +1,6 @@
 # sysdoctor
 
-`sysdoctor` is an open-source Linux diagnostic TUI for the question “Why is X
+`sysdoctor` is an open-source Linux diagnostic TUI build by arien-dev for the question “Why is X
 not working right now?”. It combines subsystem health, likely causes, safe
 next steps, and the command evidence behind each finding.
 
