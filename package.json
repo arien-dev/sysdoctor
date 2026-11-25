@@ -1,0 +1,36 @@
+{
+  "name": "linux-sysdoctor",
+  "version": "1.0.0",
+  "description": "Dense, btop-inspired Linux diagnostics TUI",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "sysdoctor": "./dist/cli.js",
+    "syst": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "npm run clean && tsc -p tsconfig.build.json && chmod +x dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run test",
+    "test:watch": "vitest test",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build",
+    "pack:check": "npm pack --dry-run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.12"
+  }
+}
