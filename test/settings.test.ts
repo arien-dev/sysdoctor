@@ -1,8 +1,8 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { loadLanguage, saveLanguage } from '../src/settings.js';
+import { loadSettings, saveSettings } from '../src/settings.js';
 
 let configHome: string | undefined;
 
@@ -13,13 +13,23 @@ afterEach(async () => {
 });
 
 describe('language preferences', () => {
-  it('starts unset and persists a selected language with private file permissions', async () => {
+  it('persists language and display mode with private file permissions', async () => {
     configHome = await mkdtemp(join(tmpdir(), 'sysdoctor-config-'));
     vi.stubEnv('XDG_CONFIG_HOME', configHome);
-    expect(await loadLanguage()).toBeNull();
-    await saveLanguage('de');
-    expect(await loadLanguage()).toBe('de');
+    expect(await loadSettings()).toEqual({});
+    await saveSettings({ language: 'de' });
+    await saveSettings({ mode: 'advanced' });
+    expect(await loadSettings()).toEqual({ language: 'de', mode: 'advanced' });
     expect(await readFile(join(configHome, 'sysdoctor', 'settings.json'), 'utf8'))
       .toContain('"language": "de"');
+  });
+
+  it('rejects an unsupported saved display mode', async () => {
+    configHome = await mkdtemp(join(tmpdir(), 'sysdoctor-config-'));
+    vi.stubEnv('XDG_CONFIG_HOME', configHome);
+    await saveSettings({ language: 'en', mode: 'easy' });
+    const path = join(configHome, 'sysdoctor', 'settings.json');
+    await writeFile(path, '{"language":"en","mode":"power-user"}');
+    await expect(loadSettings()).rejects.toThrow('Unsupported display mode');
   });
 });
