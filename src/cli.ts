@@ -3,10 +3,11 @@ import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { collectReport, anonymizeReport, reportToJson, reportToMarkdown, VERSION } from './report.js';
 import { startTui } from './tui.js';
-import { chooseLanguage } from './setup.js';
-import { detectLanguage, loadLanguage, saveLanguage } from './settings.js';
+import { chooseSetup } from './setup.js';
+import { detectLanguage, loadSettings, saveSettings } from './settings.js';
 import { localizeFinding, riskText, severityText, subsystemText, t } from './i18n.js';
 import type { Language } from './i18n.js';
+import type { DisplayMode } from './settings.js';
 import type { Severity, SystemReport } from './types.js';
 
 interface Options {
@@ -133,13 +134,16 @@ async function main(): Promise<void> {
   }
   const isInteractive = options.command === 'scan' && !options.noTui && !options.json
     && process.stdin.isTTY && process.stdout.isTTY;
-  const savedLanguage = await loadLanguage();
-  let language = options.language ?? savedLanguage ?? detectLanguage();
+  const savedSettings = await loadSettings();
+  let language = options.language ?? savedSettings.language ?? detectLanguage();
+  let mode: DisplayMode = savedSettings.mode ?? 'easy';
   if (options.language) {
-    await saveLanguage(options.language);
-  } else if (!savedLanguage && isInteractive) {
-    language = await chooseLanguage(language, options.noColor);
-    await saveLanguage(language);
+    await saveSettings({ language: options.language });
+  } else if ((!savedSettings.language || !savedSettings.mode) && isInteractive) {
+    const setup = await chooseSetup(language, mode, options.noColor);
+    language = setup.language;
+    mode = setup.mode;
+    await saveSettings(setup);
   }
   let report = await collectReport(options.timeoutMs);
   if (options.redact || options.command === 'report') report = anonymizeReport(report);
@@ -160,9 +164,14 @@ async function main(): Promise<void> {
     intervalMs: options.intervalMs,
     noColor: options.noColor,
     language,
+    mode,
     async onLanguageChange(nextLanguage) {
-      await saveLanguage(nextLanguage);
+      await saveSettings({ language: nextLanguage });
       language = nextLanguage;
+    },
+    async onModeChange(nextMode) {
+      await saveSettings({ mode: nextMode });
+      mode = nextMode;
     },
     async refresh() {
       const fresh = await collectReport(options.timeoutMs);

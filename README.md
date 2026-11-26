@@ -1,21 +1,30 @@
 # sysdoctor
 
-`sysdoctor` is an open-source Linux diagnostic TUI build by arien-dev for the question “Why is X
+`sysdoctor` is an open-source Linux diagnostic TUI built by arien-dev for the question “Why is X
 not working right now?”. It combines subsystem health, likely causes, safe
 next steps, and the command evidence behind each finding. 
 
 ```text
-+-- sysdoctor 1.0.0 - workstation - Linux 6.x - LIVE 2s - WARN -----+
-| SUBSYSTEMS       | FINDINGS & ROOT CAUSES                       |
-| * services    0  | WARN  network - No default route              |
-| ! audio       1  | The active interface may not have a gateway.  |
-| * bluetooth  0  | Check: ip route; inspect interface state.      |
-| ! network     1  +-----------------------------------------------+
-| * storage     0  | EVIDENCE - ip route                           |
-| * suspend     0  | (no default route found)                      |
-| * gpu-display 0  | [Tab] Focus  [r] Scan  [e] Export  [q] Quit   |
-| * memory-cpu  0  |                                               |
-+------------------+-----------------------------------------------+
++-- SYSDOCTOR 1.0.0 · workstation · Linux 6.x --------------------+
+| SYSTEM STATUS: WARN · LIVE 2s · LAST SCAN: 12:34 · VIEW: EASY  |
+|                                                                  |
+| SYSTEM OVERVIEW                                                  |
+| 1 area needs attention. Select it to see why.                   |
+|                                                                  |
+| CHECKED AREAS                                                    |
+| › ▲ Network             1 finding                                |
+|   ● Services            healthy                                  |
+|   ● Audio               healthy                                  |
+|   ● Bluetooth           healthy                                  |
+|   ● Storage             healthy                                  |
+|   ● Suspend             healthy                                  |
+|   ● GPU / Display       healthy                                  |
+|   ● Memory / CPU        healthy                                  |
+|                                                                  |
+| CPU LOAD: 0.42 / 8 · MEMORY: 33% · UPTIME: 2h 10m               |
+| ↑↓ choose an area · Enter details · r rescan · q quit            |
+| Space pause · m mode · L language · ? help                       |
++------------------------------------------------------------------+
 ```
 
 ## Install and run
@@ -32,11 +41,14 @@ sysdoctor report --redact
 ```
 
 `sysdoctor` and its short alias `syst` both open the interactive TUI when run
-in a terminal. On the first interactive launch, a setup screen asks for
-English or German and stores the choice in `$XDG_CONFIG_HOME/sysdoctor/`
-(usually `~/.config/sysdoctor/settings.json`). Press `L` in the dashboard to
-change it later. `--lang de` or `--lang en` sets and saves the language from
-the command line. To use the just-built copy locally before publishing:
+in a terminal. First-run setup asks for a language, then a display mode:
+**Easy** shows a plain-language cause and one suggested next step; **Advanced**
+also shows all steps and raw command evidence. Both modes run the same checks.
+Use `m` in the dashboard to switch modes later. Preferences are stored in
+`$XDG_CONFIG_HOME/sysdoctor/settings.json` (usually
+`~/.config/sysdoctor/settings.json`). Press `L` to change the language later.
+`--lang de` or `--lang en` sets and saves the language from the command line.
+To use the just-built copy locally before publishing:
 
 ```sh
 npm install
@@ -45,8 +57,8 @@ npm link
 syst
 ```
 
-Requires Node.js 20 or newer. The TUI works best at 100×30 or larger; narrower
-terminals switch to a compact stacked view. Root access is not required: probes
+Requires Node.js 20 or newer. The TUI works best at 80×24 or larger; long
+diagnostic text wraps in the details view. Root access is not required: probes
 that are unavailable or denied are reported with their reason. Checks are
 read-only; suggested steps are explicitly classified before users act.
 
@@ -54,14 +66,17 @@ read-only; suggested steps are explicitly classified before users act.
 
 | Key | Action |
 | --- | --- |
-| `↑`/`↓`, `j`/`k` | Navigate the focused list |
-| `Tab` / `Shift+Tab` | Change focus between subsystems, findings, inspector |
-| `Enter` | Open full finding detail |
-| `Esc` / `q` | Close detail / exit |
+| `↑`/`↓`, `j`/`k` | Select an area or finding |
+| `Enter` | Open area details / full finding details |
+| `Esc` | Return to overview or close dialog |
+| `q` / `Ctrl+C` | Exit |
 | `r` | Run all checks immediately |
 | `Space` | Pause or resume automatic refresh |
 | `e` | Export anonymized Markdown and JSON reports |
-| `f` | Cycle severity filter: ALL, WARN+ERR, ERR |
+| `f` | Cycle severity filter in details: ALL, WARN+ERR, ERR |
+| `[` / `]` | Change evidence source in Advanced details |
+| `Page Up` / `Page Down` | Scroll long details |
+| `m` | Switch Easy / Advanced display mode |
 | `L` | Change interface language (English / Deutsch) |
 | `?` / `h` | Show help |
 
